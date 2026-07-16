@@ -1,0 +1,62 @@
+# .gitignore
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# Virtual Environment
+nifty_scraper/
+conda-meta/
+envs/
+pkgs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Output files - These contain scraped data, not code
+output/
+*.xlsx
+*.xls
+*.csv
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Project specific
+*.txt
+!requirements.txt
+*.pyc
+*.pyo
+*.pyd
+
+# Backup files
+*.bak
+*.backup
+project_structure.txt
