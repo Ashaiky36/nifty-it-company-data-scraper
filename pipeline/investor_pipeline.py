@@ -253,13 +253,15 @@ from typing import Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 class InvestorPipeline:
-    """End-to-end pipeline for extracting client and order book data from transcripts"""
+    # """End-to-end pipeline for extracting client and order book data from transcripts"""
+    """End-to-end pipeline with chunked LLM extraction"""
     
     def __init__(self):
         self.downloader = PDFDownloader()
         # Use pdfplumber exclusively (lightweight, no memory issues)
         self.processor = PDFPlumberProcessor()
-        self.llm_extractor = LLMExtractor()
+        # self.llm_extractor = LLMExtractor()
+        self.llm_extractor = LLMExtractor(model='qwen2.5:3b-instruct')
         self.results = {}
     
     def process_company(self, company_code: str) -> Dict:
@@ -328,11 +330,27 @@ class InvestorPipeline:
         
         return all_extractions
     
+    # def _normalize_deal_key(self, deal: Dict) -> str:
+    #     """Create a unique key for deduplication"""
+    #     client = deal.get('client_description', '').lower()
+    #     value = deal.get('deal_value', '').lower()
+    #     return f"{client}_{value}"[:100]
+    
     def _normalize_deal_key(self, deal: Dict) -> str:
-        """Create a unique key for deduplication"""
-        client = deal.get('client_description', '').lower()
-        value = deal.get('deal_value', '').lower()
-        return f"{client}_{value}"[:100]
+        """Create a unique key for deduplication with safe null handling"""
+        # Safely get values with defaults
+        client = deal.get('client_description')
+        value = deal.get('deal_value')
+        
+        # Convert to string, handle None
+        client_str = str(client).lower() if client is not None else ''
+        value_str = str(value).lower() if value is not None else ''
+        
+        # If both are empty, use a fallback key
+        if not client_str and not value_str:
+            return f"deal_{hash(str(deal))}"
+        
+        return f"{client_str}_{value_str}"[:100]    
     
     def run_all(self, companies: List[str] = None) -> Dict:
         """Run pipeline for all or specified companies"""
